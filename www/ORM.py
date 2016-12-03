@@ -127,6 +127,7 @@ class FloatField(Field):
     def __init__(self, name=None, primary_key=False, default=0.0):
         super().__init__(name, "real", primary_key, default)
 
+
 # text field
 class TextField(Field):
     def __init__(self, name=None, default=None):
@@ -186,6 +187,7 @@ class ModelMetaclass(type):
         return type.__new__(cls, name, bases, attrs)
 
 
+# model metaclass
 class Model(dict, metaclass=ModelMetaclass):
     def __init__(self, **kw):
         super(Model, self).__init__(**kw)
