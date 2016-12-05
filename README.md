@@ -41,9 +41,9 @@ pip3 install aiomysql
 * +- dist/                 <-- distrubution
   |
 * +- www/                  <-- web
-  |  |
-* |  +- static/            <-- static file (css)
-* |  |
-* |  +- templates/         <-- HTML template
+  | &ensp  |
+* | &ensp  +- static/      <-- static file (css)
+* | &ensp  |
+* | &ensp  +- templates/   <-- HTML template
 * |
 * +- LICENSE               <-- LICENSE
