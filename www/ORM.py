@@ -16,8 +16,8 @@ def log(sql, args=()):
     logging.info('SQL: %s' % sql)
 
 
-# build database connection pool, http request can get database data
-async def creat_pool(loop, **kw):
+# build database connection pool, http request can fet database data
+async def create_pool(loop, **kw):
     logging.info('create database connection pool...')
     global __pool
     __pool = await aiomysql.create_pool(
@@ -50,7 +50,7 @@ async def select(sql, args, size=None):
 
 
 # delete, insert and update
-async def execute(sql, args):
+async def execute(sql, args, autocommit=True):
     log(sql)
     async with __pool.get() as conn:
         if not autocommit:
@@ -61,6 +61,7 @@ async def execute(sql, args):
                 affected = cur.rowcount
             if not autocommit:
                 await conn.commit()
+                logging.info('commit success!')
         except BaseException as e:
             if not autocommit:
                 await conn.rollback()
@@ -129,7 +130,7 @@ class ModelMetaclass(type):
         # cls: class object
         # name: class name, if user is descendant of Model, when we use metaclass, name = User
         # bases: tuples
-        # attrs: attributes (dict), eg. User has __table__, id
+        # attrs: attributes (dict), eg. User has __table__, id...
         if name == 'Model':
             return type.__new__(cls, name, bases, attrs)
 
@@ -143,10 +144,10 @@ class ModelMetaclass(type):
         # k is attrs; v is Field name=StringField(ddl="varchar50")
         for k, v in attrs.items():
             if isinstance(v, Field):
-                logging.info('  found mapping: %s ==> %s' % (k, v))
+                logging.info('found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
                 if v.primary_key:
-                    # 找到主键:
+                    # found primary_key:
                     if primaryKey:
                         raise StandardError('Duplicate primary key for field: %s' % k)
                     primaryKey = k
@@ -166,8 +167,8 @@ class ModelMetaclass(type):
         # construct select, insert, update, delete
         attrs["__select__"] = "select `%s`, %s from `%s`" % (primaryKey, ', '.join(escaped_fields), tableName)
         # 此处利用create_args_string生成的若干个?占位
-        attrs["__insert__"] = "insert into `%s` (%s, `%s`) values (%s)" % (
-        tableName, ', '.join(escaped_fields), primaryKey, create_args_string(len(escaped_fields) + 1))
+        attrs['__insert__'] = 'insert into `%s` (%s, `%s`) values (%s)' % (
+        tableName, ','.join(escaped_fields), primaryKey, create_args_string(len(escaped_fields) + 1))
         attrs["__update__"] = "update `%s` set %s where `%s`=?" % (tableName, ', '.join(map(lambda f: "`%s`=?" % (mappings.get(f).name or f), fields)), primaryKey)
         attrs["__delete__"] = "delete from `%s` where `%s`=?" % (tableName, primaryKey)
         return type.__new__(cls, name, bases, attrs)
@@ -207,7 +208,7 @@ class Model(dict, metaclass=ModelMetaclass):
     # 对于查询相关的操作,我们都定义为类方法,就可以方便查询,而不必先创建实例再查询
     @classmethod
     async def findAll(cls, where=None, args=None, **kw):
-        ' find objects by where clause. '
+        """find objects by where clause."""
         sql = [cls.__select__]
         if where:
             sql.append('where')
@@ -271,3 +272,19 @@ class Model(dict, metaclass=ModelMetaclass):
         rows = await execute(self.__delete__, args)
         if rows != 1:
             logging.warn('failed to remove by primary key: affected rows: %s' % rows)
+
+
+'''
+# test code
+class User(Model):
+    __table__ = 'users'
+    id = IntegerField(primary_key=True)
+    name = StringField()
+
+    def __init__(self, **kw):
+        super(User, self).__init__(**kw)
+u = User(id=12345, name='Michael')
+# instance(u, dict)=True,u是一个字典
+print(u)
+
+'''
