@@ -10,16 +10,16 @@ from ORM import Model, StringField, BooleanField, FloatField, TextField
 __author__ = 'Wei'
 
 
-# 用当前时间与随机生成的uuid合成作为id
+# generate id by uuid
 def next_id():
-    # uuid4()以随机方式生成uuid,hex属性将uuid转为32位的16进制数
+    # uuid4()randomly generate uuid,hex convert uuid from 32 bit to 64 bit
     return '%015d%s000' % (int(time.time() * 1000), uuid.uuid4().hex)
 
 
 class User(Model):
     __table__ = 'users'
-    # 定义各属性的域,以及是否主键,将在创建类时被映射为数据库表的列
-    # 此处default用于存储每个用于独有的id,next_id将在insert的时候被调用
+    # id is primary_key
+    # default is used to save ids, next_id will be called if call insert
     id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
     email = StringField(ddl='varchar(50)')
     passwd = StringField(ddl='varchar(50)')
