@@ -13,11 +13,10 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 import ORM
 from web_framework import add_routes, add_static
+from handlers import cookie2user, COOKIE_NAME
 
-# from handlers import cookie2user, COOKIE_NAME
 
-
-__author__ = 'Michael Liao'
+__author__ = 'Wei'
 
 
 def init_jinja2(app, **kw):
@@ -48,12 +47,12 @@ def logger_factory(app, handler):
     # record log
     def logger(request):
         logging.info('Request: %s %s' % (request.method, request.path))
-        logging.info('Request: %s %s' % (request.method, request.path))
         # yield from asyncio.sleep(0.3)
         return (yield from handler(request))
     return logger
 
 
+# middleware "data_factory; auth_factory; response_factory"
 @asyncio.coroutine
 def data_factory(app, handler):
     @asyncio.coroutine
@@ -68,6 +67,23 @@ def data_factory(app, handler):
         return (yield from handler(request))
     return parse_data
 
+
+@asyncio.coroutine
+def auth_factory(app, handler):
+    @asyncio.coroutine
+    def auth(request):
+        logging.info('check user: %s %s' % (request.method, request.path))
+        request.__user__ = None
+        cookie_str = request.cookies.get(COOKIE_NAME)
+        if cookie_str:
+            user = yield from cookie2user(cookie_str)  # combine user info into request
+            if user:
+                logging.info('set current user: %s' % user.email)
+                request.__user__ = user
+        if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
+            return web.HTTPFound('/signin')
+        return (yield from handler(request))
+    return auth
 
 @asyncio.coroutine
 def response_factory(app, handler):
@@ -94,6 +110,7 @@ def response_factory(app, handler):
                 resp.content_type = 'application/json;charset=utf-8'
                 return resp
             else:
+                r['__user__'] = request.__user__    # user is already combined into request by auth_factory
                 resp = web.Response(body=app['__templating__'].get_template(template).render(**r).encode('utf-8'))
                 resp.content_type = 'text/html;charset=utf-8'
                 return resp
@@ -128,7 +145,7 @@ def datetime_filter(t):
 def init(loop):
     yield from ORM.create_pool(loop=loop, **configs.db)
     app = web.Application(loop=loop, middlewares=[
-        logger_factory, response_factory
+        logger_factory, auth_factory, response_factory
     ])
     init_jinja2(app, filters=dict(datetime=datetime_filter))
     add_routes(app, 'handlers')
