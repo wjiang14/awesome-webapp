@@ -42,4 +42,4 @@ pip3 install aiomysql
 * | &ensp;  |
 * | &ensp;  +- templates/templates/&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<-- HTML template
 * |
-* +- LICENSE               <-- LICENSE
+* +- LICENSE &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;<-- LICENSE
