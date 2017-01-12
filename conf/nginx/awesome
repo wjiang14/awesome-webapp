@@ -5,8 +5,6 @@ server {
     access_log /srv/awesome/log/access_log;
     error_log  /srv/awesome/log/error_log;
 
-    # server_name awesome.liaoxuefeng.com;
-
     client_max_body_size 1m;
 
     gzip            on;
