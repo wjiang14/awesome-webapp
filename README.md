@@ -35,8 +35,9 @@ pip3 install aiomysql
 * awesome-python3-webapp/ 
 |
 * +- backup/&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;<-- backup
-|
+* |
 * +- www/ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;<-- web
+* |
 * | &ensp;  +- static/+- static/&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<-- static file (css)
 * | &ensp;  |
 * | &ensp;  +- templates/templates/&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<-- HTML template
