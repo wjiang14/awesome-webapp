@@ -33,7 +33,7 @@ pip3 install aiomysql
 ## Project Structure
 
 * awesome-python3-webapp/ 
-*|
+* |
 * +- backup/&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;<-- backup
 * |
 * +- www/ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; &emsp;&emsp;<-- web
